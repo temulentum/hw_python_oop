@@ -1,23 +1,23 @@
+from typing import Dict, Type
+from abc import abstractmethod
+from dataclasses import dataclass, asdict
+
+
+@dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
-    def __init__(self,
-                 training_type: str,
-                 duration: float,
-                 distance: float,
-                 speed: float,
-                 calories: float,
-                 ) -> None:
-        self.training_type: str = training_type
-        self.duration: str = '{0:.3f}'.format(round(duration, 3))
-        self.distance: str = '{0:.3f}'.format(round(distance, 3))
-        self.speed: str = '{0:.3f}'.format(round(speed, 3))
-        self.calories: str = '{0:.3f}'.format(round(calories, 3))
+    training_type: str
+    duration: float
+    distance: float
+    speed: float
+    calories: float
 
     def get_message(self):
-        message = (f'Тип тренировки: {self.training_type}; Длительность: '
-                   f'{self.duration} ч.; Дистанция: {self.distance} км; '
-                   f'Ср. скорость: {self.speed} км/ч; '
-                   f'Потрачено ккал: {self.calories}.')
+        training_parameters = asdict(self)
+        message = ('Тип тренировки: {training_type}; Длительность: '
+                   '{duration:.3f} ч.; Дистанция: {distance:.3f} км; '
+                   'Ср. скорость: {speed:.3f} км/ч; Потрачено ккал: '
+                   '{calories:.3f}.'.format(**training_parameters))
         return message
 
 
@@ -45,9 +45,10 @@ class Training:
         """Получить среднюю скорость движения."""
         return self.get_distance() / self.duration
 
+    @abstractmethod
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        pass
+        raise NotImplementedError
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -119,8 +120,9 @@ class Swimming(Training):
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков."""
 
-    Dict_Activities = {'SWM': Swimming, 'RUN': Running, 'WLK': SportsWalking}
-    return Dict_Activities[workout_type](*data)
+    activities: Dict[str, Type[Training]] = {'SWM': Swimming, 'RUN': Running,
+                                             'WLK': SportsWalking}
+    return activities[workout_type](*data)
 
 
 def main(training: Training) -> None:
