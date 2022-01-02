@@ -1,6 +1,6 @@
-from typing import Dict, Type
 from abc import abstractmethod
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
+from typing import Dict, Type
 
 
 @dataclass
@@ -13,11 +13,10 @@ class InfoMessage:
     calories: float
 
     def get_message(self):
-        training_parameters = asdict(self)
         message = ('Тип тренировки: {training_type}; Длительность: '
                    '{duration:.3f} ч.; Дистанция: {distance:.3f} км; '
                    'Ср. скорость: {speed:.3f} км/ч; Потрачено ккал: '
-                   '{calories:.3f}.'.format(**training_parameters))
+                   '{calories:.3f}.'.format(**asdict(self)))
         return message
 
 
@@ -48,7 +47,6 @@ class Training:
     @abstractmethod
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        raise NotImplementedError
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
